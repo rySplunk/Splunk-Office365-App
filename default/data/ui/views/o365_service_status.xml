@@ -1,0 +1,51 @@
+<form>
+  <label>Office365 - Service Status</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="subscription">
+      <label>Subscription</label>
+      <fieldForLabel>Subscription</fieldForLabel>
+      <fieldForValue>source</fieldForValue>
+      <search>
+        <query>sourcetype="ms:o365:management" source=*CurrentStatus | rex field=source "api\/.+\/(?&lt;Subscription&gt;.*)\/ServiceComms" | stats count by source,  Subscription | fields - count</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <choice value="*">All</choice>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="field1">
+      <label>Option 2</label>
+      <fieldForLabel>account</fieldForLabel>
+      <fieldForValue>Subscription</fieldForValue>
+      <search>
+        <query>sourcetype="ms:o365:jobinsight:account"  file="o365_refresh_token.py" | rex field=detail "windows\.net\/(?&lt;Subscription&gt;.+)\/oauth2" | stats count by Subscription, account | fields - count</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>sourcetype="ms:o365:management" source="$subscription$" StatusDisplayName=* | stats first(FeatureStatus{}.FeatureServiceStatusDisplayName) AS Status by WorkloadDisplayName | rename WorkloadDisplayName AS Workload</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Service degradation":#D93F3C,"Service restored":#6DB7C6,"Restoring service":#ED8440,"Investigating":#F7BC38,"False positive":#6A5C9E,"Extended recovery":#3863A0,"Normal service":#A2CC3E}</colorPalette>
+        </format>
+        <drilldown>
+          <link target="_blank">/app/microsoft_cloud_app/o365_outages?form.workload=$click.value$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

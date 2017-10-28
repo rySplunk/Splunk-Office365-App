@@ -1,0 +1,411 @@
+<form>
+  <label>OneDrive - User Activity</label>
+  <search id="Azurebasesearch">
+    <query>sourcetype="ms:o365:management" Workload=OneDrive Operation=* UserId=$user$ | fields SourceFileExtension ClientIP, UserAgent, Workload, Operation, SourceRelativeUrl, SourceFileName, CreationTime, ClientIP, host, ObjectId, UserId</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="user" searchWhenChanged="true">
+      <label>User</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>UserId</fieldForLabel>
+      <fieldForValue>UserId</fieldForValue>
+      <search>
+        <query>sourcetype="ms:o365:management" Workload=OneDrive | stats count by UserId | sort + UserId | fields - count</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+      <initialValue>*</initialValue>
+      <default>*</default>
+    </input>
+    <input type="time" token="field1" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="checkbox" token="details" searchWhenChanged="true">
+      <label></label>
+      <choice value="*">Show File Details</choice>
+      <delimiter> </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <title>Uploads</title>
+        <search base="Azurebasesearch">
+          <query>|search Operation=FileUploaded | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">cloud-upload</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#00ABEC</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <title>Deletes</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=FileDeleted | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">trash-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#00ABEC</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <title>Renames</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=FileRenamed | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">strikethrough</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#00ABEC</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <title>Shares</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=SharingSet | dedup ObjectId, UserId | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">share-alt</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#00ABEC</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$details$">
+        <title>Uploaded files</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=FileUploaded | iplocation ClientIP | stats count by SourceFileName, CreationTime, ClientIP, Country UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Upload Time" ClientIP AS "IP" UserAgent AS Agent</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Deleted files</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=FileDeleted | iplocation ClientIP| stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Delete Time" ClientIP AS IP UserAgent AS "UserAgent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Renamed files</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=FileRenamed | iplocation ClientIP| stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Rename Time" ClientIP AS IP UserAgent AS "UserAgent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Shared files</title>
+        <search base="Azurebasesearch">
+          <query>search Operation=SharingSet OR Operation=SharingInvitationCreated | iplocation ClientIP | stats count by ObjectId, CreationTime, ClientIP, Country, UserAgent | fields - count | rename ObjectId AS "Object" CreationTime AS "Share Time" ClientIP AS IP UserAgent AS "UserAgent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=doc OR   SourceFileExtension=docx | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">150</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">file-word-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#2A5699</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=ppt OR   SourceFileExtension=pptx | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">150</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">file-powerpoint-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#D24625</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=xls OR   SourceFileExtension=xlsx | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">150</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">file-excel-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#207245</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=pdf | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">150</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">file-pdf-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#C11E07</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$details$">
+        <title>Word Documents</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=doc OR SourceFileExtension=docx | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Powerpoint</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=ppt OR SourceFileExtension=pptx | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Excel</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=xls OR SourceFileExtension=xlsx | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>PDF</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=pdf | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=gif OR SourceFileExtension=jpg OR SourceFileExtension=jpeg OR SourceFileExtension=png | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">file-image-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=zip OR SourceFileExtension=tar.gz OR SourceFileExtension=rar OR SourceFileExtension=7zip | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">file-archive-o</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=mp3 OR SourceFileExtension=wav | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">music</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=avi OR SourceFileExtension=mov OR SourceFileExtension=mp4 OR SourceFileExtension=wmv | dedup SourceFileName, SourceRelativeUrl | stats count | fields count host</query>
+        </search>
+        <option name="height">80</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">text</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">video-camera</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">1</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$details$">
+        <title>Images</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=gif OR SourceFileExtension=jpg OR SourceFileExtension=jpeg OR SourceFileExtension=png | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Zips</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=zip OR SourceFileExtension=tar.gz OR SourceFileExtension=rar OR SourceFileExtension=7zip | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Music files</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=mp3 OR SourceFileExtension=wav | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$details$">
+        <title>Video Files</title>
+        <search base="Azurebasesearch">
+          <query>eval SourceFileExtension=lower(SourceFileExtension) | search SourceFileExtension=avi OR SourceFileExtension=mov OR SourceFileExtension=mp4 OR SourceFileExtension=wmv | iplocation ClientIP |stats count by SourceFileName, CreationTime, ClientIP, Country, UserAgent | fields - count | rename SourceFileName AS "File Name" CreationTime AS "Create Time" ClientIP AS IP UserAgent AS "Agent"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,14 @@
+Microsoft Cloud App for Splunk
+
+Dashboards, Reports and Alerts for Azure and Office365 data.
+
+Pre-Requisites:
+
+This app leverages some of Splunk's custom visualisations and add-ons.
+
+For best results please install the following apps/add-ons: 
+
+Sankey Diagram Visulization: https://apps.splunk.com/apps/id/sankey_diagram_app
+Status Indicator Visualization: https://apps.splunk.com/apps/id/status_indicator_app
+Splunk Add-on for Microsoft Cloud Services: https://apps.splunk.com/apps/id/Splunk_TA_microsoft-cloudservices
+Microsoft Office 365 Reporting Add-on for Splunk: https://apps.splunk.com/apps/id/TA-MS_O365_Reporting

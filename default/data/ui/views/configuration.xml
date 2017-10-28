@@ -1,0 +1,74 @@
+<form>
+  <label>Configuration</label>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>Required Apps &amp; Add-ons</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /services/apps/local | search title=sankey_diagram_app | stats count | eval Status = if (count = 0, "Not Installed", "Installed") | eval Name = "Sankey Diagram" | eval Details = "https://apps.splunk.com/apps/id/sankey_diagram_app" | fields + Name Details Status
+| append [| rest splunk_server=local /services/apps/local | search title=status_indicator_app | stats count | eval Status = if (count = 0, "Not Installed", "Installed") | eval Name = "Status Indicator" | eval Details = "https://apps.splunk.com/apps/id/status_indicator_app" | fields + Name Details Status]
+| append [| rest splunk_server=local /services/apps/local | search title=Splunk_TA_microsoft-cloudservices | stats count | eval Status = if (count = 0, "Not Installed", "Installed") | eval Name = "Splunk Add-on for Microsoft Cloud Services" | eval Details = "https://apps.splunk.com/apps/id/Splunk_TA_microsoft-cloudservices" | fields + Name Details Status]
+| append [| rest splunk_server=local /services/apps/local | search title=TA-MS_O365_Reporting | stats count | eval Status = if (count = 0, "Not Installed", "Installed") | eval Name = "Microsoft Office 365 Reporting Add-on for Splunk" | eval Details = "https://apps.splunk.com/apps/id/TA-MS_O365_Reporting" | fields + Name Details Status]</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Installed":#65A637,"Not Installed":#D93F3C}</colorPalette>
+        </format>
+        <drilldown>
+          <link target="_blank">$row.Details|n$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Data Source Check</title>
+      <input type="time" token="field1">
+        <label></label>
+        <default>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <search>
+          <query>| inputlookup datacheck
+ | eval count = 0
+ | join type=outer sourcetype  [ search sourcetype=ms:o365:management OR sourcetype=ms:o365:reporting:messagetrace OR sourcetype=mscs:azure:audit
+         | stats count by sourcetype ] | rename sourcetype AS Sourcetype data_description AS "Description" app_source AS "App Source" count AS "Event Count" dashboards AS Dashboards | fields Sourcetype Description "App Source" Dashboards "Event Count"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Event Count">
+          <colorPalette type="list">[#D93F3C,#65A637]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+              /app/$row.App Source$
+               ]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

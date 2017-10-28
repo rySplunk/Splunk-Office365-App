@@ -1,0 +1,92 @@
+[views/o365_login_activity]
+version = 6.6.3
+modtime = 1507187251.673985000
+
+[views/exchange_overview]
+version = 6.6.3
+modtime = 1507185460.836315000
+
+[nav/default]
+version = 6.6.3
+modtime = 1507383498.225687000
+
+[views/exchange_message_trace]
+version = 6.6.3
+modtime = 1507501036.944663000
+
+[views/onedrive_overview]
+version = 6.6.3
+modtime = 1507187297.992514000
+
+[views/exchange_whitelist]
+owner = admin
+version = 6.6.3
+modtime = 1507277418.102038000
+
+[html/exchange_whitelist]
+access = read : [ * ], write : [ admin, power ]
+owner = admin
+version = 6.6.3
+modtime = 1507521563.433888000
+
+[transforms/exchange_whitelist]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = nobody
+version = 6.6.3
+modtime = 1507283353.874072000
+
+[transforms/exchange_blacklist]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = nobody
+version = 6.6.3
+modtime = 1507283367.002114000
+
+[transforms/onedrive_blacklist]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = nobody
+version = 6.6.3
+modtime = 1507283374.152485000
+
+[transforms/onedrive_whitelist]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = nobody
+version = 6.6.3
+modtime = 1507283382.537644000
+
+[workflow_actions/exchange_sender_address_whitelist]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 6.6.3
+modtime = 1507508421.709297000
+
+[views/lookup_exchange_whitelist]
+owner = admin
+version = 6.6.3
+modtime = 1507294663.023889000
+
+[html/lookup_exchange_whitelist]
+access = read : [ * ], write : [ admin, power ]
+owner = admin
+version = 6.6.3
+modtime = 1507522654.257800000
+
+[views/lookup_exchange_blacklist]
+owner = admin
+version = 6.6.3
+modtime = 1507294843.928620000
+
+[html/lookup_exchange_blacklist]
+access = read : [ * ], write : [ admin, power ]
+owner = admin
+version = 6.6.3
+modtime = 1507380685.912410000
+
+[views/hunting]
+owner = admin
+version = 6.6.3
+modtime = 1507386056.574507000

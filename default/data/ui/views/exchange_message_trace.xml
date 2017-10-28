@@ -1,0 +1,191 @@
+<form>
+  <label>Exchange - Message Trace</label>
+  <fieldset submitButton="true">
+    <input type="dropdown" token="field1">
+      <label>Select Field:</label>
+      <choice value="sender">Sender</choice>
+      <choice value="recipient">Recipient</choice>
+      <choice value="subject">Subject</choice>
+      <choice value="status">Status</choice>
+      <change>
+        <condition value="sender">
+          <unset token="field1"></unset>
+          <unset token="recipient"></unset>
+          <unset token="form.recipient_input"></unset>
+          <unset token="subject"></unset>
+          <unset token="form.subject_input"></unset>
+          <unset token="status"></unset>
+          <unset token="form.status_input"></unset>
+          <set token="sender">Sender</set>
+        </condition>
+        <condition value="recipient">
+          <unset token="field1"></unset>
+          <unset token="sender"></unset>
+          <unset token="form.sender_input"></unset>
+          <unset token="subject"></unset>
+          <unset token="form.subject_input"></unset>
+          <unset token="status"></unset>
+          <unset token="form.status_input"></unset>
+          <set token="recipient">Recipient</set>
+        </condition>
+        <condition value="subject">
+          <unset token="field1"></unset>
+          <unset token="sender"></unset>
+          <unset token="form.sender_input"></unset>
+          <unset token="recipient"></unset>
+          <unset token="form.recipient_input"></unset>
+          <unset token="status"></unset>
+          <unset token="form.status_input"></unset>
+          <set token="subject">Subject</set>
+        </condition>
+        <condition value="status">
+          <unset token="field1"></unset>
+          <unset token="sender"></unset>
+          <unset token="form.sender_input"></unset>
+          <unset token="recipient"></unset>
+          <unset token="form.recipient_input"></unset>
+          <unset token="subject"></unset>
+          <unset token="form.subject_input"></unset>
+          <set token="status">Status</set>
+        </condition>
+      </change>
+    </input>
+    <input depends="$sender$" type="text" token="sender_input" searchWhenChanged="false">
+      <label>Sender:</label>
+      <change>
+        <unset token="recipient_input"></unset>
+        <unset token="recipient"></unset>
+        <unset token="subject_input"></unset>
+        <unset token="subject"></unset>
+        <unset token="status_input"></unset>
+        <unset token="status"></unset>
+      </change>
+    </input>
+    <input depends="$recipient$" type="text" token="recipient_input" searchWhenChanged="false">
+      <label>Recipient:</label>
+      <change>
+        <unset token="sender_input"></unset>
+        <unset token="sender"></unset>
+        <unset token="subject_input"></unset>
+        <unset token="subject"></unset>
+        <unset token="status_input"></unset>
+        <unset token="status"></unset>
+      </change>
+    </input>
+    <input depends="$subject$" type="text" token="subject_input" searchWhenChanged="false">
+      <label>Subject:</label>
+      <change>
+        <unset token="sender_input"></unset>
+        <unset token="sender"></unset>
+        <unset token="recipient_input"></unset>
+        <unset token="recipient"></unset>
+        <unset token="status_input"></unset>
+        <unset token="status"></unset>
+      </change>
+    </input>
+    <input depends="$status$" type="dropdown" token="status_input" searchWhenChanged="false">
+      <label>Status:</label>
+      <change>
+        <unset token="sender_input"></unset>
+        <unset token="sender"></unset>
+        <unset token="recipient_input"></unset>
+        <unset token="recipient"></unset>
+        <unset token="subject_input"></unset>
+        <unset token="subject"></unset>
+      </change>
+      <choice value="Delivered">Delivered</choice>
+      <choice value="Failed">Failed</choice>
+      <choice value="FilteredAsSpam">Filtered as Spam</choice>
+      <choice value="Pending">Pending</choice>
+    </input>
+    <input type="time" token="field2">
+      <label></label>
+      <default>
+        <earliest>1505113200</earliest>
+        <latest>1506841200</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel depends="$sender_input$">
+      <table>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace SenderAddress="*$sender_input$*" | table _time SenderAddress RecipientAddress Subject Status</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Delivered":#6DB7C6,"Failed":#F7BC38,"FilteredAsSpam":#D93F3C,"Pending":#6A5C9E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel depends="$recipient_input$">
+      <table>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace RecipientAddress="*$recipient_input$*" | table _time SenderAddress RecipientAddress Subject Status</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Delivered":#6DB7C6,"Failed":#F7BC38,"FilteredAsSpam":#D93F3C,"Pending":#6A5C9E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel depends="$subject_input$">
+      <table>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace Subject="*$subject_input$*" | table _time SenderAddress RecipientAddress Subject Status</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Delivered":#6DB7C6,"Failed":#F7BC38,"FilteredAsSpam":#D93F3C,"Pending":#6A5C9E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel depends="$status_input$">
+      <table>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace Status="*$status_input$*" | table _time SenderAddress RecipientAddress Subject Status</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Delivered":#6DB7C6,"Failed":#F7BC38,"FilteredAsSpam":#D93F3C,"Pending":#6A5C9E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

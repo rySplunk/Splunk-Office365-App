@@ -1,0 +1,89 @@
+<dashboard>
+  <label>Exchange - Overview</label>
+  <row>
+    <panel>
+      <title>Mail by Status</title>
+      <chart>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace | timechart span=5m count by Status</query>
+          <earliest>1505286000</earliest>
+          <latest>1505458800</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.fieldColors">{"Delivered":0xA2CC3E,"Failed":0xD93F3C,"FilteredAsSpam":0x6DB7C6,"Pending":0x6A5C9E}</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Sender Domains</title>
+      <table>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace | rex field=SenderAddress "@(?&lt;sender_domain&gt;\S+)" | stats dc(message_id) AS Emails by sender_domain | rename sender_domain AS "Sender Domain" | sort - Emails</query>
+          <earliest>1505286000</earliest>
+          <latest>1505458800</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Emails">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>Top Recipient Domains</title>
+      <table>
+        <search>
+          <query>sourcetype=ms:o365:reporting:messagetrace | rex field=RecipientAddress "@(?&lt;recipient_domain&gt;\S+)" | stats dc(message_id) AS Emails by recipient_domain | rename recipient_domain AS "Recipient Domain" | sort - Emails</query>
+          <earliest>1505286000</earliest>
+          <latest>1505458800</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Emails">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

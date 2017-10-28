@@ -1,0 +1,119 @@
+# Application-level permissions
+
+[]
+access = read : [ * ], write : [ admin, power ]
+
+### EVENT TYPES
+
+[eventtypes]
+export = system
+
+
+### PROPS
+
+[props]
+export = system
+
+
+### TRANSFORMS
+
+[transforms]
+export = system
+
+
+### LOOKUPS
+
+[lookups]
+export = system
+
+
+### VIEWSTATES: even normal users should be able to create shared viewstates
+
+[viewstates]
+access = read : [ * ], write : [ * ]
+export = system
+
+[app/ui]
+version = 6.6.3
+modtime = 1507018049.591759000
+
+[app/launcher]
+version = 6.6.3
+modtime = 1507018049.593213000
+
+[nav/default]
+version = 6.6.3
+modtime = 1507122828.557391000
+
+[views/o365_service_status]
+owner = admin
+version = 6.6.3
+modtime = 1507028336.128763000
+
+[views/o365_outages]
+owner = admin
+version = 6.6.3
+modtime = 1507026863.612413000
+
+[views/onedrive_overview]
+owner = admin
+version = 6.6.3
+modtime = 1507034694.167483000
+
+[lookups/executables.csv]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 6.6.3
+modtime = 1507031606.039181000
+
+[transforms/executables]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 6.6.3
+modtime = 1507031629.579386000
+
+[views/o365_login_activity]
+owner = admin
+version = 6.6.3
+modtime = 1507115481.277791000
+
+[views/onedrive_user_activity]
+owner = admin
+version = 6.6.3
+modtime = 1507038498.647228000
+
+[views/exchange_overview]
+owner = admin
+version = 6.6.3
+modtime = 1507109948.373629000
+
+[views/configuration]
+owner = admin
+version = 6.6.3
+modtime = 1507184443.678114000
+
+[lookups/datacheck.csv]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 6.6.3
+modtime = 1507108984.303393000
+
+[views/onedrive_file_investigator]
+owner = admin
+version = 6.6.3
+modtime = 1507110633.276325000
+
+[views/exchange_message_trace]
+owner = admin
+version = 6.6.3
+modtime = 1507123341.203730000
+
+[transforms/datacheck]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 6.6.3
+modtime = 1507171305.849666000

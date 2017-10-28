@@ -1,0 +1,46 @@
+<form>
+  <label>OneDrive - File Investigator</label>
+  <fieldset submitButton="true">
+    <input type="dropdown" token="workload" searchWhenChanged="false">
+      <label>FIle Location</label>
+      <choice value="*">All</choice>
+      <choice value="OneDrive">OneDrive</choice>
+      <choice value="SharePoint">SharePoint</choice>
+      <default>*</default>
+    </input>
+    <input type="text" token="filename" searchWhenChanged="true">
+      <label>File Name</label>
+      <default>*</default>
+      <prefix>*</prefix>
+      <suffix>*</suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Matching Files $filename$</title>
+        <search>
+          <query>sourcetype="ms:o365:management" Workload=$workload$ file_name=*"$filename$"* | dedup file_name, user, file_path, ClientIP | table _time file_name user EventSource file_path ClientIP action | rename user AS User EventSource AS App file_path AS "File Path" ClientIP AS "Client IP" action AS Action</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="file_name">$click.value2$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$file_name$">
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <title>File Share Activity: $file_name$</title>
+        <search>
+          <query>sourcetype="ms:o365:management" object_category=* Workload=OneDrive Operation=SharingSet ObjectId=*"$file_name$"*  | stats count by TargetUserOrGroupName, EventData</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+      </viz>
+    </panel>
+  </row>
+</form>

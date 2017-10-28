@@ -1,0 +1,34 @@
+<nav search_view="search" color="#00c0f0">
+  <collection label="Office365">
+    <view name="o365_service_status" default='true' />
+    <view name="o365_outages" />
+    <view name="o365_login_activity" />
+  </collection>
+  <collection label="Azure" >
+  </collection>
+  <collection label="Exchange" >
+    <view name="exchange_overview" />
+    <view name="exchange_message_trace" />
+  </collection>
+  <collection label="OneDrive">
+    <view name="onedrive_overview"/>
+    <view name="onedrive_user_activity" />
+    <view name="onedrive_file_investigator" />
+  </collection>
+  <collection label="Hunting">
+  <view name="hunting" />
+  <collection label="Manage Lookups" >
+  	<a href="/app/microsoft_cloud_app/lookup_exchange_whitelist">Exchange Whitelist</a>
+  	<a href="/app/microsoft_cloud_app/lookup_exchange_blacklist">Exchange Blacklist</a>    
+  </collection>
+  </collection>    
+  <view name="configuration" />
+  <collection label="Splunk" >
+    <view name="search" />
+        <view name="alerts" />
+        <view name="datasets" />
+        <view name="reports" />
+        <view name="alerts" />
+        <view name="dashboards" />
+  </collection>
+</nav>

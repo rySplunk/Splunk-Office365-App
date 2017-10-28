@@ -1,0 +1,4 @@
+sourcetype,data_description,app_source,dashboards
+ms:o365:management,Office365 management API logs,Splunk_TA_microsoft-cloudservices,Office365 & OneDrive
+ms:o365:reporting:messagetrace,Exchange Online message tracking logs,TA-MS_O365_Reporting,Exchange
+mscs:azure:audit,Azure audit logs,Splunk_TA_microsoft-cloudservices,Azure

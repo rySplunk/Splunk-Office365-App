@@ -1,0 +1,54 @@
+<form>
+  <label>Office365 - Outages</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="workload" searchWhenChanged="true">
+      <label>Service</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <fieldForLabel>WorkloadDisplayName</fieldForLabel>
+      <fieldForValue>WorkloadDisplayName</fieldForValue>
+      <search>
+        <query>sourcetype="ms:o365:management" | stats count by WorkloadDisplayName | fields - count</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="time" token="field1" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>sourcetype="ms:o365:management" WorkloadDisplayName="$workload$"  Severity=Sev* | table _time, WorkloadDisplayName, Id, Severity, Classification, Title, ImpactDescription, LastUpdatedTime, Status | rename WorkloadDisplayName AS Service Id AS Ticket ImpactDescription AS Impact LastUpdatedTime AS "Last Update" | sort - _time</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Workload">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Service degradation":#D93F3C,"Service restored":#6DB7C6,"Restoring service":#ED8440,"Investigating":#F7BC38,"False positive":#6A5C9E,"Extended recovery":#3863A0,"Normal service":#A2CC3E}</colorPalette>
+        </format>
+        <format type="color" field="Service">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

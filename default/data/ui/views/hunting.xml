@@ -1,0 +1,84 @@
+<form>
+  <label>Hunting</label>
+  <fieldset submitButton="true">
+    <input type="dropdown" token="sourcetype">
+      <label>I want to search my:</label>
+      <choice value="ms:o365:reporting:messagetrace">Exchange Logs</choice>
+      <choice value="ms:o365:management Workload=OneDrive">OneDrive Files</choice>
+      <change>
+        <condition value="ms:o365:reporting:messagetrace">
+          <unset token="onedrive"></unset>
+          <set token="exchange">Exchange</set>
+        </condition>
+        <condition value="o365:management Workload=OneDrive">
+          <unset token="exchange"></unset>
+          <set token="onedrive">OneD</set>
+        </condition>
+      </change>
+    </input>
+    <input depends="$exchange$" type="dropdown" token="excfield">
+      <label>For:</label>
+      <choice value="SenderAddress">Sender Addresses</choice>
+      <choice value="RecipientAddress">Recipient Addresses</choice>
+      <choice value="Subject">Subjects</choice>
+      <choice value="FromIP">Source IP's</choice>
+      <choice value="ToIP">Dest IP's</choice>
+    </input>
+    <input depends="$onedrive$" type="dropdown" token="onefield">
+      <label>For:</label>
+      <choice value="SourceFileName">File Name</choice>
+      <choice value="SourceFileExtension">File Extension</choice>
+      <choice value="ClientIP">Client IP</choice>
+      <choice value="UserAgent">User Agent</choice>
+    </input>
+    <input type="radio" token="choice">
+      <label></label>
+      <choice value="search">IN my</choice>
+      <choice value="search NOT">NOT IN my</choice>
+      <change>
+        <condition value="search">
+          <unset token="unmatch"></unset>
+          <set token="match">match</set>
+        </condition>
+        <condition value="search NOT">
+          <unset token="match"></unset>
+          <set token="unmatch">unmatch</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="list">
+      <label></label>
+      <choice value="exchange_whitelist">Exchange Whitelist</choice>
+      <choice value="exchange_blacklist">Exchange Blacklist</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel depends="$match$">
+      <title>$excfield$ Matching Lookup Entries</title>
+      <table depends="$list$">
+        <search>
+          <query>sourcetype="$sourcetype$" | lookup $list$ Lookup$excfield$ AS $excfield$ OUTPUT Lookup$excfield$ LookupNotes | $choice$ Lookup$excfield$="*" | table _time Status SenderAddress, RecipientAddress Subject ToIP FromIP LookupNotes</query>
+          <earliest>1505113200</earliest>
+          <latest>1506841200</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"Delivered":#6DB7C6,"Failed":#F7BC38,"FilteredAsSpam":#D93F3C,"Pending":#6A5C9E}</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel depends="$unmatch$">
+      <title>$excfield$ NOT matching Lookup Entries</title>
+      <table depends="$list$">
+        <search>
+          <query>sourcetype="$sourcetype$" | lookup $list$ Lookup$excfield$ AS $excfield$ OUTPUT Lookup$excfield$ LookupNotes | $choice$ Lookup$excfield$="*" | stats count by $excfield$, Subject</query>
+          <earliest>1505113200</earliest>
+          <latest>1506841200</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
